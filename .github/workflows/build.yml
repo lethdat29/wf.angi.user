@@ -76,27 +76,30 @@ jobs:
         run: chmod +x scripts/stream-log.sh
       - name: Clone another repo
         run: |
-          ./scripts/stream-log.sh echo "Cloning repository... ${{ env.GIT_URL }} on branch ${{ env.BRANCH }}"
+          ./scripts/stream-log.sh
+          echo "Cloning repository... ${{ env.GIT_URL }} on branch ${{ env.BRANCH }}"
 
-          ./scripts/stream-log.sh git clone --depth=1 --branch ${{ env.BRANCH }} ${{ env.GIT_URL }} app
-          ./scripts/stream-log.sh cd app
-          ./scripts/stream-log.sh ls -la
-          ./scripts/stream-log.sh COMMIT_SHA=$(git rev-parse --short HEAD)
-          ./scripts/stream-log.sh echo "Commit SHA: $COMMIT_SHA"
-          ./scripts/stream-log.sh echo "COMMIT_SHA=$COMMIT_SHA" >> $GITHUB_ENV
+          git clone --depth=1 --branch ${{ env.BRANCH }} ${{ env.GIT_URL }} app
+          cd app
+          ls -la
+          COMMIT_SHA=$(git rev-parse --short HEAD)
+          echo "Commit SHA: $COMMIT_SHA"
+          echo "COMMIT_SHA=$COMMIT_SHA" >> $GITHUB_ENV
       - name: Build Docker image
         run: |
-          ./scripts/stream-log.sh cd app
-          ./scripts/stream-log.sh docker login quay.io -u ${{ secrets.QUAY_USERNAME }} -p ${{ secrets.QUAY_TOKEN }}
-          ./scripts/stream-log.sh docker build -t quay.io/${{ env.IMAGE_NAME }}:${{ env.COMMIT_SHA }}.${{ github.run_number }} .
+          ./scripts/stream-log.sh
+          cd app
+          docker login quay.io -u ${{ secrets.QUAY_USERNAME }} -p ${{ secrets.QUAY_TOKEN }}
+          docker build -t quay.io/${{ env.IMAGE_NAME }}:${{ env.COMMIT_SHA }}.${{ github.run_number }} .
       - name: Push Docker image
         if: success()
         run: |
-          ./scripts/stream-log.sh docker push quay.io/${{ env.IMAGE_NAME }}:${{ env.COMMIT_SHA }}.${{ github.run_number }}
-          ./scripts/stream-log.sh echo "Docker image pushed successfully."
+          ./scripts/stream-log.sh
+          docker push quay.io/${{ env.IMAGE_NAME }}:${{ env.COMMIT_SHA }}.${{ github.run_number }}
+          echo "Docker image pushed successfully."
       - name: Set image tag for deployment
         id: set_img_tag
-        run: ./scripts/stream-log.sh echo "IMG_TAG=${{ env.COMMIT_SHA }}.${{ github.run_number }}" >> $GITHUB_OUTPUT
+        run: echo "IMG_TAG=${{ env.COMMIT_SHA }}.${{ github.run_number }}" >> $GITHUB_OUTPUT
       - name: Notify Telegram on success
         if: success()
         run: |
@@ -127,7 +130,8 @@ jobs:
         run: chmod +x scripts/stream-log.sh
       - name: debug
         run: |
-          ./scripts/stream-log.sh echo "IMAGE_TAG: $IMAGE_TAG"
+          ./scripts/stream-log.sh
+          echo "IMAGE_TAG: $IMAGE_TAG"
       # echo "KUBE_CONFIG_DATA: $KUBE_CONFIG_DATA"
       # - name: Set up kubeconfig
       #   run: |

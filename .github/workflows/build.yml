@@ -31,3 +31,26 @@ jobs:
         run: |
           docker push quay.io/angi/angi.user:${{ env.COMMIT_SHA }}.${{ github.run_number }}
           echo "Docker image pushed successfully."
+      - name: Set image tag for deployment
+        run: echo "IMG_TAG=${{ env.COMMIT_SHA }}.${{ github.run_number }}" >> $GITHUB_OUTPUT
+  deploy:
+    runs-on: ubuntu-latest
+    env: 
+      KUBE_CONFIG_DATA: ${{ secrets.KUBE_CONFIG_DATA }}
+      IMAGE_TAG: ${{ needs.build.outputs.IMG_TAG }}
+    needs: build
+    steps:
+      - name: debug
+        run: |
+          echo "KUBE_CONFIG_DATA: $KUBE_CONFIG_DATA"
+          echo "IMAGE_TAG: $IMAGE_TAG"
+      # - name: Set up kubeconfig
+      #   run: |
+      #     mkdir -p $HOME/.kube
+      #     echo "$KUBE_CONFIG_DATA" | base64 --decode > $HOME/.kube/config
+      #     cat $HOME/.kube/config
+
+      # - name: Deploy to K3s
+      #   run: |
+      #     echo "Deploying Docker image to K3s..."
+      #     kubectl set image deployment/angi-user angi-user=quay.io/angi/angi.user:${{ env.COMMIT_SHA }}.${{ github.run_number }} --kubeconfig ${{ secrets.K3S_KUBECONFIG }}

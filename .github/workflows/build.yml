@@ -54,8 +54,6 @@ jobs:
       BRANCH: ${{ needs.prepare.outputs.BRANCH }}
       IMAGE_NAME: ${{ needs.prepare.outputs.IMAGE_NAME }}
       DOCKER_FILE_PATH: ${{ needs.prepare.outputs.DOCKER_FILE_PATH }}
-      GITEA_USERNAME: ${{ secrets.GITEA_USERNAME }}
-      GITEA_TOKEN: ${{ secrets.GITEA_TOKEN }}
       QUAY_USERNAME: ${{ secrets.QUAY_USERNAME }}
       QUAY_TOKEN: ${{ secrets.QUAY_TOKEN }}
       TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}

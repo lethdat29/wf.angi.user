@@ -13,9 +13,9 @@ jobs:
     steps:
       - name: Clone another repo
         run: |
-          echo "Cloning repository... ${{ secrets.GITEA_TOKEN }}"
+          echo "Cloning repository..."
 
-          git clone https://${{ secrets.GITEA_USERNAME }}:${{ secrets.GITEA_TOKEN }}@gitea.com/angi/angi.user.git
+          git clone --depth=1 https://${{ secrets.GITEA_USERNAME }}:${{ secrets.GITEA_TOKEN }}@gitea.com/angi/angi.user.git
           cd angi.user
           ls -la
           COMMIT_SHA=$(git rev-parse --short HEAD)

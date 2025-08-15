@@ -2,10 +2,8 @@ name: Build and Push Docker Image for angi.user
 
 on:
   repository_dispatch:
-    types: [gitea-push]
+    types: [gitea-push, trigger_build]
   workflow_dispatch:
-  schedule:
-    - cron: "* * * * *"  # Runs daily at midnight
 
 jobs:
   build:

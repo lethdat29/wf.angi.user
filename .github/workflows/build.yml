@@ -162,7 +162,7 @@ jobs:
           echo "=== Hợp nhất log thành công ==="
       - name: Send log to Telegram
         env:
-          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          TELEGRAM_TOKEN: ${{ secrets.TELE_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: |
           # Chia nhỏ log nếu dài hơn 4000 ký tự (Telegram giới hạn)

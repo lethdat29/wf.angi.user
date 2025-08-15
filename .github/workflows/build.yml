@@ -46,6 +46,7 @@ jobs:
       - name: Set up environment variables
         id: set_env_vars
         run: |
+          ./scripts/stream-log.sh set +e
           echo "NAME=${{ github.event.client_payload.name }}" >> $GITHUB_OUTPUT
           echo "GIT_URL=$(echo -n '${{ github.event.client_payload.gitUrl }}' | base64 -w0)" >> $GITHUB_OUTPUT
           echo "BRANCH=${{ github.event.client_payload.branch }}" >> $GITHUB_OUTPUT
@@ -53,6 +54,7 @@ jobs:
           echo "DOCKER_FILE_PATH=${{ github.event.client_payload.dockerfilePath }}" >> $GITHUB_OUTPUT
           echo "KUBECONFIG_YAML_PATH=${{ github.event.client_payload.kubeConfigYamlPath }}" >> $GITHUB_OUTPUT
           echo "JOB_ID=${{ github.event.client_payload.job_id || github.run_id }}" >> $GITHUB_OUTPUT
+          set -e
   build:
     runs-on: ubuntu-latest
     needs: prepare
@@ -76,24 +78,30 @@ jobs:
         run: chmod +x scripts/stream-log.sh
       - name: Clone another repo
         run: |
-          ./scripts/stream-log.sh echo "Cloning repository... ${{ env.GIT_URL }} on branch ${{ env.BRANCH }}"
+          ./scripts/stream-log.sh set +e
+          echo "Cloning repository... ${{ env.GIT_URL }} on branch ${{ env.BRANCH }}"
 
-          ./scripts/stream-log.sh git clone --depth=1 --branch ${{ env.BRANCH }} ${{ env.GIT_URL }} app
-          ./scripts/stream-log.sh cd app
-          ./scripts/stream-log.sh ls -la
+          git clone --depth=1 --branch ${{ env.BRANCH }} ${{ env.GIT_URL }} app
+          cd app
+          ls -la
           COMMIT_SHA=$(git rev-parse --short HEAD)
           echo "Commit SHA: $COMMIT_SHA"
           echo "COMMIT_SHA=$COMMIT_SHA" >> $GITHUB_ENV
+          set -e
       - name: Build Docker image
         run: |
-          ./scripts/stream-log.sh cd app
-          ./scripts/stream-log.sh docker login quay.io -u ${{ secrets.QUAY_USERNAME }} -p ${{ secrets.QUAY_TOKEN }}
-          ./scripts/stream-log.sh docker build -t quay.io/${{ env.IMAGE_NAME }}:${{ env.COMMIT_SHA }}.${{ github.run_number }} .
+          ./scripts/stream-log.sh set +e
+          cd app
+          docker login quay.io -u ${{ secrets.QUAY_USERNAME }} -p ${{ secrets.QUAY_TOKEN }}
+          docker build -t quay.io/${{ env.IMAGE_NAME }}:${{ env.COMMIT_SHA }}.${{ github.run_number }} .
+          set -e
       - name: Push Docker image
         if: success()
         run: |
-          ./scripts/stream-log.sh docker push quay.io/${{ env.IMAGE_NAME }}:${{ env.COMMIT_SHA }}.${{ github.run_number }}
-          ./scripts/stream-log.sh echo "Docker image pushed successfully."
+          ./scripts/stream-log.sh set +e
+          docker push quay.io/${{ env.IMAGE_NAME }}:${{ env.COMMIT_SHA }}.${{ github.run_number }}
+          echo "Docker image pushed successfully."
+          ./scripts/stream-log.sh set -e
       - name: Set image tag for deployment
         id: set_img_tag
         run: echo "IMG_TAG=${{ env.COMMIT_SHA }}.${{ github.run_number }}" >> $GITHUB_OUTPUT
@@ -127,7 +135,9 @@ jobs:
         run: chmod +x scripts/stream-log.sh
       - name: debug
         run: |
-          ./scripts/stream-log.sh echo "IMAGE_TAG: $IMAGE_TAG"
+          ./scripts/stream-log.sh set +e
+          echo "IMAGE_TAG: $IMAGE_TAG"
+          ./scripts/stream-log.sh set -e
       # echo "KUBE_CONFIG_DATA: $KUBE_CONFIG_DATA"
       # - name: Set up kubeconfig
       #   run: |

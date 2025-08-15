@@ -36,6 +36,8 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3
+      - name: Set execute permission
+        run: chmod +x scripts/stream-log.sh
       - name: Notify Telegram on workflow start
         run: |
           curl -s -X POST https://api.telegram.org/bot${{ secrets.TELE_TOKEN }}/sendMessage \
@@ -70,6 +72,8 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3
+      - name: Set execute permission
+        run: chmod +x scripts/stream-log.sh
       - name: Clone another repo
         run: |
           ./scripts/stream-log.sh echo "Cloning repository... ${{ env.GIT_URL }} on branch ${{ env.BRANCH }}"
@@ -119,6 +123,8 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3
+      - name: Set execute permission
+        run: chmod +x scripts/stream-log.sh
       - name: debug
         run: |
           ./scripts/stream-log.sh echo "IMAGE_TAG: $IMAGE_TAG"

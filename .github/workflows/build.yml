@@ -15,10 +15,28 @@ jobs:
         run: |
           echo "Cloning repository... ${{ secrets.GITEA_TOKEN }}"
 
-          git clone https://${{ secrets.GITEA_USERNAME }}:${{ secrets.GITEA_TOKEN }}@gitea.com/angi/angi.user.git
+          git clone --depth=1 https://${{ secrets.GITEA_USERNAME }}:${{ secrets.GITEA_TOKEN }}@gitea.com/angi/angi.user.git
           cd angi.user
+          echo "LATEST_COMMIT=$(git rev-parse HEAD)" >> $GITHUB_ENV
           ls -la
+      - name: Check previous commit
+        id: check
+        uses: actions/cache@v3
+        with:
+          path: last_commit.txt
+          key: last-commit-key
+      - name: Compare commits
+        run: |
+          if [ -f last_commit.txt ]; then
+            PREV=$(cat last_commit.txt)
+            if [ "$PREV" = "$LATEST_COMMIT" ]; then
+              echo "No changes, skipping build"
+              exit 0
+            fi
+          fi
+          echo $LATEST_COMMIT > last_commit.txt
       - name: Build Docker image
+        if: success()
         run: |
           cd angi.user
           COMMIT_SHA=$(git rev-parse --short HEAD)

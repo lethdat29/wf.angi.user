@@ -1,0 +1,24 @@
+name: External Trigger Build
+
+on:
+  repository_dispatch:
+    types: [gitea-push]
+  workflow_dispatch:
+  schedule:
+    - cron: "* * * * *"  # Runs daily at midnight
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clone another repo
+        run: |
+          git clone https://gitea.com/angi/angi.user.git
+          cd angi.user
+          ls -la
+      - name: Build Docker image
+        run: |
+          cd target-repo
+          COMMIT_SHA=$(git rev-parse --short HEAD)
+          echo "Commit SHA: $COMMIT_SHA"
+          docker build -t quay.io/${{ secrets.QUAY_USERNAME }}/my-image:$COMMIT_SHA .

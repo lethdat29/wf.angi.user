@@ -1,4 +1,4 @@
-name: External Trigger Build
+name: Build and Push Docker Image for angi.user
 
 on:
   repository_dispatch:
@@ -21,7 +21,7 @@ jobs:
       - name: Build Docker image
         run: |
           cd angi.user
-          COMMIT_SHA=$(git rev-parse --short HEAD)
+          export COMMIT_SHA=$(git rev-parse --short HEAD)
           echo "Commit SHA: $COMMIT_SHA"
           docker login quay.io -u ${{ secrets.QUAY_USERNAME }} -p ${{ secrets.QUAY_TOKEN }}
           docker build -t quay.io/${{ secrets.QUAY_USERNAME }}/angi.user:$COMMIT_SHA .

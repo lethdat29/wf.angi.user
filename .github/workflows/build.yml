@@ -18,12 +18,12 @@ jobs:
           git clone https://${{ secrets.GITEA_USERNAME }}:${{ secrets.GITEA_TOKEN }}@gitea.com/angi/angi.user.git
           cd angi.user
           ls -la
-      - name: Build Docker image
-        run: |
-          cd angi.user
           COMMIT_SHA=$(git rev-parse --short HEAD)
           echo "Commit SHA: $COMMIT_SHA"
           echo "COMMIT_SHA=$COMMIT_SHA" >> $GITHUB_ENV
+      - name: Build Docker image
+        run: |
+          cd angi.user
           docker login quay.io -u ${{ secrets.QUAY_USERNAME }} -p ${{ secrets.QUAY_TOKEN }}
           docker build -t quay.io/${{ secrets.QUAY_USERNAME }}/angi.user:$COMMIT_SHA .
       - name: Push Docker image

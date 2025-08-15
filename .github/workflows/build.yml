@@ -20,7 +20,8 @@ jobs:
           ls -la
       - name: Build Docker image
         run: |
-          cd target-repo
+          cd angi.user
           COMMIT_SHA=$(git rev-parse --short HEAD)
           echo "Commit SHA: $COMMIT_SHA"
-          docker build -t quay.io/${{ secrets.QUAY_USERNAME }}/my-image:$COMMIT_SHA .
+          docker login quay.io -u ${{ secrets.QUAY_USERNAME }} -p ${{ secrets.QUAY_TOKEN }}
+          docker build -t quay.io/${{ secrets.QUAY_USERNAME }}/angi.user:$COMMIT_SHA .

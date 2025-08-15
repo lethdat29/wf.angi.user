@@ -34,6 +34,8 @@ jobs:
       KUBECONFIG_YAML_PATH: ${{ steps.set_env_vars.outputs.KUBECONFIG_YAML_PATH }}
       JOB_ID: ${{ steps.set_env_vars.outputs.JOB_ID }}
     steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
       - name: Notify Telegram on workflow start
         run: |
           curl -s -X POST https://api.telegram.org/bot${{ secrets.TELE_TOKEN }}/sendMessage \
@@ -66,6 +68,8 @@ jobs:
     outputs:
       IMG_TAG: ${{ steps.set_img_tag.outputs.IMG_TAG }}
     steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
       - name: Clone another repo
         run: |
           ./scripts/stream-log.sh echo "Cloning repository... ${{ env.GIT_URL }} on branch ${{ env.BRANCH }}"
@@ -113,6 +117,8 @@ jobs:
       KUBECONFIG_YAML_PATH: ${{ needs.prepare.outputs.KUBECONFIG_YAML_PATH }}
       JOB_ID: ${{ needs.prepare.outputs.JOB_ID }}
     steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
       - name: debug
         run: |
           ./scripts/stream-log.sh echo "IMAGE_TAG: $IMAGE_TAG"

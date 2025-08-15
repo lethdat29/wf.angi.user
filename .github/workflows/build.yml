@@ -15,7 +15,7 @@ jobs:
         run: |
           echo "Cloning repository... ${{ secrets.GITEA_TOKEN }}"
 
-          git clone https://imdat99:0a6dd6ebb817803282bb252aa1f8c2864577e308@gitea.com/angi/angi.user.git
+          git clone https://${{ secrets.GITEA_USERNAME }}:${{ secrets.GITEA_TOKEN }}@gitea.com/angi/angi.user.git
           cd angi.user
           ls -la
       - name: Build Docker image

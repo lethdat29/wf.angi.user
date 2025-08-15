@@ -25,4 +25,7 @@ jobs:
           echo "Commit SHA: $COMMIT_SHA"
           docker login quay.io -u ${{ secrets.QUAY_USERNAME }} -p ${{ secrets.QUAY_TOKEN }}
           docker build -t quay.io/${{ secrets.QUAY_USERNAME }}/angi.user:$COMMIT_SHA .
+      - name: Push Docker image
+        run: |
           docker push quay.io/${{ secrets.QUAY_USERNAME }}/angi.user:$COMMIT_SHA
+          echo "Docker image pushed successfully."

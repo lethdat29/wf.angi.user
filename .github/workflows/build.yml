@@ -3,9 +3,20 @@ name: Build and Push Docker Image for angi.user
 on:
   repository_dispatch:
     types: [gitea-push, trigger_build]
-  workflow_dispatch:
+  
+concurrency:
+  group: ${{ github.event.client_payload.group }}   # Lấy group từ payload
+  cancel-in-progress: true
 
 jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Notify Telegram on workflow start
+        run: |
+          curl -s -X POST https://api.telegram.org/bot${{ secrets.TELE_TOKEN }}/sendMessage \
+            -d chat_id=${{ secrets.TELEGRAM_CHAT_ID }} \
+            -d text="🚀 Workflow ${{ github.workflow }} started for Group ${{ github.event.client_payload.group }}."
   build:
     runs-on: ubuntu-latest
     outputs:

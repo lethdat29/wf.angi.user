@@ -50,7 +50,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: prepare
     env:
-      GIT_URL: ${{ needs.prepare.outputs.GIT_URL }} | base64 --decode
+      GIT_URL: $(echo "${{ needs.prepare.outputs.GIT_URL }}" | base64 --decode)
       BRANCH: ${{ needs.prepare.outputs.BRANCH }}
       IMAGE_NAME: ${{ needs.prepare.outputs.IMAGE_NAME }}
       DOCKER_FILE_PATH: ${{ needs.prepare.outputs.DOCKER_FILE_PATH }}

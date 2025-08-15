@@ -13,7 +13,7 @@ jobs:
     steps:
       - name: Clone another repo
         run: |
-          git clone https://gitea.com/angi/angi.user.git
+          git clone https://${{ secrets.GITEA_TOKEN }}:${{ secrets.GITEA_USERNAME }}@gitea.com/angi/angi.user.git
           cd angi.user
           ls -la
       - name: Build Docker image

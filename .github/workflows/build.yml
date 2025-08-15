@@ -64,27 +64,39 @@ jobs:
     steps:
       - name: Clone another repo
         run: |
-          echo "Cloning repository... ${{ env.GIT_URL }} on branch ${{ env.BRANCH }}"
-
-          git clone --depth=1 --branch ${{ env.BRANCH }} ${{ env.GIT_URL }} app
+          set +e
+          echo "Cloning repository... ${{ env.GIT_URL }} on branch ${{ env.BRANCH }}" | tee -a build.log
+          git clone --depth=1 --branch ${{ env.BRANCH }} ${{ env.GIT_URL }} app 2>&1 | tee -a build.log
           cd app
-          ls -la
+          ls -la | tee -a ../build.log
           COMMIT_SHA=$(git rev-parse --short HEAD)
-          echo "Commit SHA: $COMMIT_SHA"
+          echo "Commit SHA: $COMMIT_SHA" | tee -a ../build.log
           echo "COMMIT_SHA=$COMMIT_SHA" >> $GITHUB_ENV
+          set -e
       - name: Build Docker image
         run: |
+          set +e
           cd app
-          docker login quay.io -u ${{ secrets.QUAY_USERNAME }} -p ${{ secrets.QUAY_TOKEN }}
-          docker build -t quay.io/${{ env.IMAGE_NAME }}:${{ env.COMMIT_SHA }}.${{ github.run_number }} .
+          docker login quay.io -u ${{ secrets.QUAY_USERNAME }} -p ${{ secrets.QUAY_TOKEN }} 2>&1 | tee -a ../build.log
+          docker build -t quay.io/${{ env.IMAGE_NAME }}:${{ env.COMMIT_SHA }}.${{ github.run_number }} . 2>&1 | tee -a ../build.log
+          set -e
       - name: Push Docker image
         if: success()
         run: |
-          docker push quay.io/${{ env.IMAGE_NAME }}:${{ env.COMMIT_SHA }}.${{ github.run_number }}
-          echo "Docker image pushed successfully."
+          set +e
+          docker push quay.io/${{ env.IMAGE_NAME }}:${{ env.COMMIT_SHA }}.${{ github.run_number }} 2>&1 | tee -a build.log
+          echo "Docker image pushed successfully." | tee -a build.log
+          set -e
       - name: Set image tag for deployment
         id: set_img_tag
         run: echo "IMG_TAG=${{ env.COMMIT_SHA }}.${{ github.run_number }}" >> $GITHUB_OUTPUT
+      - name: Notify Telegram with full build log
+        if: always()
+        run: |
+          LOG=$(cat build.log | tail -c 4000)
+          curl -s -X POST https://api.telegram.org/bot${{ secrets.TELE_TOKEN }}/sendMessage \
+            -d chat_id=${{ secrets.TELEGRAM_CHAT_ID }} \
+            -d text="📝 Build job ${{ env.NAME }} log (last 4000 chars):\n$LOG"
       - name: Notify Telegram on success
         if: success()
         run: |

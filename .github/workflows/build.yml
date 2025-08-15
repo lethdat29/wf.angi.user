@@ -25,9 +25,9 @@ jobs:
         run: |
           cd angi.user
           docker login quay.io -u ${{ secrets.QUAY_USERNAME }} -p ${{ secrets.QUAY_TOKEN }}
-          docker build -t quay.io/angi/angi.user:${{ env.COMMIT_SHA }} .
+          docker build -t quay.io/angi/angi.user:${{ env.COMMIT_SHA }}.${{ github.run_number }} .
       - name: Push Docker image
         if: success()
         run: |
-          docker push quay.io/angi/angi.user:${{ env.COMMIT_SHA }}
+          docker push quay.io/angi/angi.user:${{ env.COMMIT_SHA }}.${{ github.run_number }}
           echo "Docker image pushed successfully."
